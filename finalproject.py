@@ -38,7 +38,8 @@ df=data.copy()
 df.drop(df[df.price <= 0].index,inplace=True)
 
 
-ax = sns.histplot(df['price'], kde=True)
+# ax = sns.histplot(df['price'], kde=True)
+ax = sns.kdeplot(df['price'])
 ax.set_title('Disribution of Price')
 # plt.show()
 plt.savefig('Disribution_of_Price_before_logtransform.png')
@@ -51,7 +52,8 @@ df['price'] = np.log(df['price'])
 # In[9]:
 
 
-ax = sns.histplot(df['price'], kde=True)
+# ax = sns.histplot(df['price'], kde=True)
+ax = sns.kdeplot(df['price'])
 ax.set_title('Disribution of Price')
 # plt.show()
 plt.savefig('Disribution_of_Price_after_logtransform.png')
