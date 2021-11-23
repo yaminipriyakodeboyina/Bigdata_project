@@ -33,7 +33,9 @@ data=pd.read_csv('data1.csv')
 
 
 df=data.copy()
-
+df1=data.copy()
+XX = df1.drop(["price"],axis = 1)
+YY = df1["price"]
 
 df.drop(df[df.price <= 0].index,inplace=True)
 
@@ -141,7 +143,11 @@ df['sqft_basement'] = np.where((df.sqft_basement >2000 ), 2000, df.sqft_basement
 
 
 ax = sns.pairplot(df)
-plt.savefig('compare_features.png')
+plt.savefig('compare_features_aftercleaning.png')
+plt.clf()
+ax = sns.pairplot(df1)
+plt.savefig('compare_features_beforecleaning.png')
+plt.clf()
 
 
 # ## Split the data to train and test set
@@ -152,12 +158,12 @@ plt.savefig('compare_features.png')
 # df.drop(['street','city','country','date','sqft_above','waterfront','yr_renovated'],axis=1, inplace=True)
 df.drop(['street','city','country','date'],axis=1, inplace=True)
 
-
+df.to_csv("cleaned_houseprice_data.csv", sep='\t')
 # In[21]:
 
 
-X1 = df.drop(["price"],axis = 1)
-Y = df["price"]
+# X1 = df.drop(["price"],axis = 1)
+# Y = df["price"]
 
 
 # In[22]:
@@ -166,61 +172,87 @@ Y = df["price"]
 
 
 
-X1= pd.get_dummies(X1, columns=['statezip'], prefix = ['statezip'])
+# X1= pd.get_dummies(X1, columns=['statezip'], prefix = ['statezip'])
 
 
-# In[25]:
+# # In[25]:
 
 
-imp=SimpleImputer()
-ct=make_column_transformer(
-(imp,['bedrooms','bathrooms','sqft_living','sqft_lot','floors','condition','view','sqft_basement','yr_built','sqft_above','waterfront','yr_renovated']),
-    remainder='passthrough')
+# imp=SimpleImputer()
+# ct=make_column_transformer(
+# (imp,['bedrooms','bathrooms','sqft_living','sqft_lot','floors','condition','view','sqft_basement','yr_built','sqft_above','waterfront','yr_renovated']),
+#     remainder='passthrough')
 
 
-# In[26]:
+# # In[26]:
 
 
-X=pd.DataFrame(ct.fit_transform(X1))
-
-
-
-X.columns=X1.columns
-
-
-# ### Linear Regression without Scalling
-
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, Y, random_state=0)
+# X=pd.DataFrame(ct.fit_transform(X1))
 
 
 
-
-lr = LinearRegression()
-print("Cross Validation scrore for linear regression without scalling",cross_val_score(lr, X, Y))
-lr.fit(X_train, y_train)
-print("score for train data",lr.score(X_train, y_train))
-print("score for test data",lr.score(X_test, y_test))
+# X.columns=X1.columns
 
 
-#Ridge without Scalling
+# # ### Linear Regression without Scalling
 
 
-
-clf=Ridge(alpha=1.0)
-print("Cross Validation scrore for Ridge without scalling",cross_val_score(clf, X, Y))
-clf.fit(X_train,y_train)
-
-print("score for train data",clf.score(X_train, y_train))
-print("score for test data",clf.score(X_test, y_test))
-
-
-# LinearRegression,ElasticNet, Lasso, Ridge after scalling
+# X_train, X_test, y_train, y_test = train_test_split(
+#     X, Y, random_state=0)
 
 
 
 
+# lr = LinearRegression()
+# print("Cross Validation scrore for linear regression without scalling",cross_val_score(lr, X, Y))
+# lr.fit(X_train, y_train)
+# print("score for train data",lr.score(X_train, y_train))
+# print("score for test data",lr.score(X_test, y_test))
+
+
+# #Ridge without Scalling
+
+
+
+# clf=Ridge(alpha=1.0)
+# print("Cross Validation scrore for Ridge without scalling",cross_val_score(clf, X, Y))
+# clf.fit(X_train,y_train)
+
+# print("score for train data",clf.score(X_train, y_train))
+# print("score for test data",clf.score(X_test, y_test))
+
+
+# # LinearRegression,ElasticNet, Lasso, Ridge after scalling
+
+
+
+
+# numeric_features =['bedrooms','bathrooms','sqft_living','sqft_lot','floors','condition','view','sqft_basement','yr_built']
+# categorical_features  = ['statezip']
+
+# numeric_transformer = Pipeline(steps=[('scaler', StandardScaler())])
+# categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
+# preprocessor = ColumnTransformer(
+#     transformers=[
+#         ('num', numeric_transformer, numeric_features),
+#         ('cat', categorical_transformer, categorical_features)])
+# clf = Pipeline(steps=[('preprocessor', preprocessor),
+#                       ('classifier', LinearRegression())])
+# X = df.drop(["price"],axis = 1)
+# Y=df['price']
+# print("Cross Validation for LinearRegression",cross_val_score(clf, X, Y, cv=5))
+# x_train, x_test, y_train, y_test = train_test_split(X, Y, random_state=0)
+# clf.fit(x_train, y_train)
+# print(clf.score(x_train, y_train))
+# print(clf.score(x_test, y_test))
+
+
+# clf = Pipeline(steps=[('preprocessor', preprocessor),
+#                       ('classifier',Ridge(alpha=1.0))])
+# print("Cross Validation for Ridge",cross_val_score(clf, X, Y, cv=5))
+# clf.fit(x_train,y_train)
+# print("score for train data",clf.score(x_train, y_train))
+# print("score for test data",clf.score(x_test, y_test))
 numeric_features =['bedrooms','bathrooms','sqft_living','sqft_lot','floors','condition','view','sqft_basement','yr_built']
 categorical_features  = ['statezip']
 
@@ -234,20 +266,18 @@ clf = Pipeline(steps=[('preprocessor', preprocessor),
                       ('classifier', LinearRegression())])
 X = df.drop(["price"],axis = 1)
 Y=df['price']
+print("results after cleaning data")
 print("Cross Validation for LinearRegression",cross_val_score(clf, X, Y, cv=5))
 x_train, x_test, y_train, y_test = train_test_split(X, Y, random_state=0)
 clf.fit(x_train, y_train)
-print(clf.score(x_train, y_train))
-print(clf.score(x_test, y_test))
+print("Performance score for test data",clf.score(x_test, y_test))
+print("Performance score for train data",clf.score(x_train, y_train))
 
-
-clf = Pipeline(steps=[('preprocessor', preprocessor),
-                      ('classifier',Ridge(alpha=1.0))])
-print("Cross Validation for Ridge",cross_val_score(clf, X, Y, cv=5))
-clf.fit(x_train,y_train)
-print("score for train data",clf.score(x_train, y_train))
-print("score for test data",clf.score(x_test, y_test))
-
-
+print("data used here is not cleaned")
+print("Cross Validation for LinearRegression",cross_val_score(clf, XX, YY, cv=5))
+x_train, x_test, y_train, y_test = train_test_split(XX, YY, random_state=0)
+clf.fit(x_train, y_train)
+print("Performance score for test data",clf.score(x_test, y_test))
+print("Performance score for train data",clf.score(x_train, y_train))
 
 
